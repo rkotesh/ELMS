@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-calendar"></i> My Leave Calendar
+                </h1>
+                <a href="{{ url_for('employee.apply_leave') }}" class="btn btn-primary">
+                    <i class="bi bi-calendar-plus"></i> Apply Leave
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calendar Legend -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Legend</h6>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-success me-2" style="width: 20px; height: 20px;"></div>
+                            <span>Vacation Leave</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-danger me-2" style="width: 20px; height: 20px;"></div>
+                            <span>Sick Leave</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-warning me-2" style="width: 20px; height: 20px;"></div>
+                            <span>Personal Leave</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-info me-2" style="width: 20px; height: 20px;"></div>
+                            <span>Emergency Leave</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calendar -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div id="calendar" data-events-url="{{ url_for('employee.api_calendar_events') }}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        events: '{{ url_for("employee.api_calendar_events") }}',
+        eventDisplay: 'block',
+        dayMaxEvents: 3,
+        eventClick: function(info) {
+            // Show event details
+            const event = info.event;
+            const startDate = event.start.toLocaleDateString();
+            const endDate = event.end ? event.end.toLocaleDateString() : startDate;
+            
+            alert(`${event.title}\nDates: ${startDate} - ${endDate}`);
+        },
+        eventDidMount: function(info) {
+            // Add tooltip
+            info.el.setAttribute('title', info.event.title);
+        }
+    });
+    
+    calendar.render();
+});
+</script>
+{% endblock %}

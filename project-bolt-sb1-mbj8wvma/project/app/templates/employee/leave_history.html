@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-clock-history"></i> Leave History
+                </h1>
+                <a href="{{ url_for('employee.apply_leave') }}" class="btn btn-primary">
+                    <i class="bi bi-calendar-plus"></i> Apply Leave
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Options -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Status Filter</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="pending" {{ 'selected' if status_filter == 'pending' }}>Pending</option>
+                                <option value="approved" {{ 'selected' if status_filter == 'approved' }}>Approved</option>
+                                <option value="rejected" {{ 'selected' if status_filter == 'rejected' }}>Rejected</option>
+                                <option value="cancelled" {{ 'selected' if status_filter == 'cancelled' }}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="bi bi-funnel"></i> Filter
+                            </button>
+                            <a href="{{ url_for('employee.leave_history') }}" class="btn btn-outline-secondary ms-2">
+                                <i class="bi bi-x-circle"></i> Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leave Requests Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-list-ul"></i> Your Leave Requests
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if leaves.items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Leave Type</th>
+                                    <th>Dates</th>
+                                    <th>Days</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Applied</th>
+                                    <th>Manager Comments</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in leaves.items %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ leave.leave_type.title() }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ leave.start_date.strftime('%b %d') }}</strong> - 
+                                        <strong>{{ leave.end_date.strftime('%b %d, %Y') }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ leave.duration_text }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" 
+                                              title="{{ leave.reason }}">
+                                            {{ leave.reason }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge status-{{ leave.status }}">
+                                            {{ leave.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ leave.created_at.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        {% if leave.manager_comments %}
+                                            <span class="text-truncate d-inline-block" style="max-width: 150px;" 
+                                                  title="{{ leave.manager_comments }}">
+                                                {{ leave.manager_comments }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if leave.can_be_cancelled() %}
+                                        <a href="{{ url_for('employee.cancel_leave', id=leave.id) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Are you sure you want to cancel this leave request?')">
+                                            <i class="bi bi-x-circle"></i> Cancel
+                                        </a>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if leaves.pages > 1 %}
+                    <nav aria-label="Leave history pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if leaves.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('employee.leave_history', page=leaves.prev_num, status=status_filter) }}">
+                                    <i class="bi bi-chevron-left"></i> Previous
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in leaves.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != leaves.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('employee.leave_history', page=page_num, status=status_filter) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if leaves.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('employee.leave_history', page=leaves.next_num, status=status_filter) }}">
+                                    Next <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="text-muted mt-3">No Leave Requests Found</h4>
+                        <p class="text-muted">You haven't submitted any leave requests yet.</p>
+                        <a href="{{ url_for('employee.apply_leave') }}" class="btn btn-primary">
+                            <i class="bi bi-calendar-plus"></i> Apply for Leave
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

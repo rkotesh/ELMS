@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="bi bi-house"></i> Employee Dashboard
+                <small class="text-muted">Welcome back, {{ current_user.first_name }}!</small>
+            </h1>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card dashboard-card bg-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check card-icon"></i>
+                    <div class="card-number">{{ leave_balance }}</div>
+                    <div class="card-title">Leave Balance</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card dashboard-card bg-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-x card-icon"></i>
+                    <div class="card-number">{{ total_days_taken }}</div>
+                    <div class="card-title">Days Taken</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card dashboard-card bg-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock-history card-icon"></i>
+                    <div class="card-number">{{ pending_leaves }}</div>
+                    <div class="card-title">Pending Requests</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card dashboard-card bg-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-check card-icon"></i>
+                    <div class="card-number">{{ pending_attendance }}</div>
+                    <div class="card-title">Attendance Requests</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('employee.apply_leave') }}" class="btn btn-primary w-100">
+                                <i class="bi bi-calendar-plus"></i> Apply Leave
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('employee.attendance_request') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-clock"></i> Attendance Request
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('employee.leave_history') }}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-list-ul"></i> Leave History
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('employee.calendar') }}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-calendar"></i> Calendar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Leave Requests -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history"></i> Recent Leave Requests
+                    </h5>
+                    <a href="{{ url_for('employee.leave_history') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_leaves %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Leave Type</th>
+                                    <th>Dates</th>
+                                    <th>Days</th>
+                                    <th>Status</th>
+                                    <th>Applied</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in recent_leaves %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ leave.leave_type.title() }}</span>
+                                    </td>
+                                    <td>
+                                        {{ leave.start_date.strftime('%b %d') }} - {{ leave.end_date.strftime('%b %d, %Y') }}
+                                    </td>
+                                    <td>{{ leave.duration_text }}</td>
+                                    <td>
+                                        <span class="badge status-{{ leave.status }}">
+                                            {{ leave.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ leave.created_at.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        {% if leave.can_be_cancelled() %}
+                                        <a href="{{ url_for('employee.cancel_leave', id=leave.id) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Are you sure you want to cancel this leave request?')">
+                                            <i class="bi bi-x-circle"></i> Cancel
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">No leave requests found.</p>
+                        <a href="{{ url_for('employee.apply_leave') }}" class="btn btn-primary">
+                            <i class="bi bi-calendar-plus"></i> Apply for Leave
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
