@@ -47,27 +47,6 @@ The **Employee Leave Management System (ELMS)** is a web-based platform built wi
 
 ---
 
-## 📂 Project Structure
-elms/
-│── app/
-│ ├── init.py # Flask app initialization
-│ ├── models.py # Database models
-│ ├── routes/ # Route handlers
-│ │ ├── auth.py # Authentication routes
-│ │ ├── employee.py # Employee management routes
-│ ├── templates/ # HTML templates (Jinja2)
-│ ├── static/ # CSS, JS, Images
-│── migrations/ # Database migrations
-│── config.py # App configuration
-│── run.py # Entry point
-│── requirements.txt # Dependencies
-│── README.md # Documentation
-
-yaml
-Copy code
-
----
-
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
