@@ -64,26 +64,6 @@ This system improves leave tracking, enhances transparency, and provides admin-l
 
 ---
 
-## 📂 Project Structure
-elms/
-│── app/
-│ ├── init.py # Flask app factory
-│ ├── models.py # Database models
-│ ├── routes/ # Application routes (auth, employee, leave)
-│ ├── templates/ # Jinja2 templates (HTML)
-│ ├── static/ # CSS, JS, images
-│ ├── extensions.py # Flask extensions (db, login, mail)
-│
-│── migrations/ # Database migrations (Flask-Migrate)
-│── run.py # Application entry point
-│── requirements.txt # Project dependencies
-│── README.md # Documentation
-
-yaml
-Copy code
-
----
-
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
