@@ -41,47 +41,7 @@
                 </div>
             </form>
 
-            <!-- Leave Table -->
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Employee</th>
-                            <th>Type</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for leave in leaves %}
-                        <tr>
-                            <td>{{ leave.id }}</td>
-                            <td>{{ leave.employee.name }}</td>
-                            <td>{{ leave.leave_type }}</td>
-                            <td>{{ leave.start_date }}</td>
-                            <td>{{ leave.end_date }}</td>
-                            <td>
-                                <span class="badge 
-                                    {% if leave.status == 'Pending' %}badge-warning
-                                    {% elif leave.status == 'Approved' %}badge-success
-                                    {% elif leave.status == 'Rejected' %}badge-danger
-                                    {% else %}badge-secondary{% endif %}">
-                                    {{ leave.status }}
-                                </span>
-                            </td>
-                            <td>
-                                {% if leave.status == 'Pending' %}
-                                <a href="{{ url_for('manager.view_leave', leave_id=leave.id) }}" class="btn btn-primary btn-sm">Review</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            
         </div>
     </div>
 </div>
