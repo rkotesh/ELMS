@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Floating bubbles -->
+<div class="floating-shape small" style="top:12%; left:10%;"></div>
+<div class="floating-shape medium" style="top:25%; left:70%;"></div>
+<div class="floating-shape large" style="top:65%; left:20%;"></div>
+<div class="floating-shape small" style="top:80%; left:85%;"></div>
+<div class="floating-shape medium" style="top:50%; left:55%;"></div>
+
+<div class="container register mt-5">
+    <div class="row">
+        <!-- Left Panel -->
+        <div class="col-md-3 register-left">
+            <h3>Manager</h3>
+            <p>Review Leave Requests</p>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="col-md-9 register-right">
+            <h3 class="register-heading">Team Leave Requests</h3>
+
+            <!-- Filter Form -->
+            <form method="GET" action="{{ url_for('manager.filter_leaves') }}" class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <select name="status" class="form-control">
+                        <option value="">All Status</option>
+                        <option value="Pending" {% if request.args.get('status')=='Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Approved" {% if request.args.get('status')=='Approved' %}selected{% endif %}>Approved</option>
+                        <option value="Rejected" {% if request.args.get('status')=='Rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="employee_id" class="form-control" placeholder="Employee ID" value="{{ request.args.get('employee_id', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+                </div>
+                <div class="col-md-12 mt-2">
+                    <button type="submit" class="btnRegister">Filter</button>
+                    <a href="{{ url_for('manager.dashboard') }}" class="btnBack">Clear Filter</a>
+                </div>
+            </form>
+
+            <!-- Leave Table -->
+            <div class="table-responsive shadow-sm rounded">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Type</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}
+                        <tr>
+                            <td>{{ leave.id }}</td>
+                            <td>{{ leave.employee.name }}</td>
+                            <td>{{ leave.leave_type }}</td>
+                            <td>{{ leave.start_date }}</td>
+                            <td>{{ leave.end_date }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if leave.status == 'Pending' %}bg-warning
+                                    {% elif leave.status == 'Approved' %}bg-success
+                                    {% elif leave.status == 'Rejected' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ leave.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if leave.status == 'Pending' %}
+                                <a href="{{ url_for('manager.view_leave', leave_id=leave.id) }}" class="btn btn-sm btn-outline-primary">Review</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Background animation */
+body {
+    background: linear-gradient(270deg, #0F2027, #2c5364, #0F2027);
+    background-size: 600% 600%;
+    animation: gradientAnimation 15s ease infinite;
+    overflow-x: hidden;
+}
+@keyframes gradientAnimation {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* Floating bubbles */
+.floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.12;
+    animation: floatAnimation ease-in-out infinite;
+    z-index: 0;
+}
+.small { width: 30px; height: 30px; background: #2c5364; animation-duration: 12s; }
+.medium { width: 70px; height: 70px; background: #0F2027; animation-duration: 18s; }
+.large { width: 120px; height: 120px; background: #2c5364; animation-duration: 24s; }
+@keyframes floatAnimation {
+    0% { transform: translateY(0px) translateX(0px); }
+    50% { transform: translateY(-20px) translateX(15px); }
+    100% { transform: translateY(0px) translateX(0px); }
+}
+
+/* Glass panels */
+.register {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+}
+.register-left {
+    text-align: center;
+    color: #fff;
+    margin-top: 20px;
+}
+.register-right {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+}
+.register-heading {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+/* Buttons */
+.btnRegister {
+    border-radius: 1.5rem;
+    padding: 8px 20px;
+    background: #2c5364;
+    color: #fff;
+    font-weight: 600;
+    border: none;
+}
+.btnRegister:hover {
+    background: #0F2027;
+    color: #fff;
+}
+.btnBack {
+    border-radius: 1.5rem;
+    padding: 8px 20px;
+    border: 2px solid #2c5364;
+    background: transparent;
+    color: #2c5364;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.btnBack:hover {
+    background: #2c5364;
+    color: #fff;
+}
+
+/* Table */
+.table-responsive {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+}
+</style>
+
+{% endblock %}
